@@ -26,6 +26,9 @@ import feign.Request.Options;
 import feign.codec.*;
 import feign.template.UriUtils;
 
+/**
+ * 通过JDK动态代理构建Feign代理。
+ */
 public class ReflectiveFeign extends Feign {
 
   private final ParseHandlersByName targetToHandlersByName;
@@ -46,6 +49,7 @@ public class ReflectiveFeign extends Feign {
   @SuppressWarnings("unchecked")
   @Override
   public <T> T newInstance(Target<T> target) {
+    // 解析代理接口中需要做代理的方法。MethodHandler中封装了每个方法最终执行http请求的处理
     Map<String, MethodHandler> nameToHandler = targetToHandlersByName.apply(target);
     Map<Method, MethodHandler> methodToHandler = new LinkedHashMap<Method, MethodHandler>();
     List<DefaultMethodHandler> defaultMethodHandlers = new LinkedList<DefaultMethodHandler>();
@@ -61,6 +65,8 @@ public class ReflectiveFeign extends Feign {
         methodToHandler.put(method, nameToHandler.get(Feign.configKey(target.type(), method)));
       }
     }
+    // JDK动态代理构建FeignClient，handler中包含了上面的methodToHandler
+    // 代理执行时会将执行逻辑交由对应的methodToHandler去处理
     InvocationHandler handler = factory.create(target, methodToHandler);
     T proxy = (T) Proxy.newProxyInstance(target.type().getClassLoader(),
         new Class<?>[] {target.type()}, handler);
@@ -81,6 +87,9 @@ public class ReflectiveFeign extends Feign {
       this.dispatch = checkNotNull(dispatch, "dispatch for %s", target);
     }
 
+    /**
+     * 将除equals、hashCode、toString之外的方法，交由方法所对应的MethodHandler处理
+     */
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
       if ("equals".equals(method.getName())) {
@@ -148,9 +157,12 @@ public class ReflectiveFeign extends Feign {
     }
 
     public Map<String, MethodHandler> apply(Target target) {
+      // 注解解析器，通过解析器解析FeignClient接口上的注解，在SpringCloud中使用的是 SpringMvcContract
+      // 这里要debug看下 metadata中的数据，应该是通过注解解析出来http请求的模板
       List<MethodMetadata> metadata = contract.parseAndValidateMetadata(target.type());
       Map<String, MethodHandler> result = new LinkedHashMap<String, MethodHandler>();
       for (MethodMetadata md : metadata) {
+        // 基于上面获取到的元数据信息以及方法入参封装RequestTemplate的创建工厂
         BuildTemplateByResolvingArgs buildTemplate;
         if (!md.formParams().isEmpty() && md.template().bodyTemplate() == null) {
           buildTemplate =
@@ -165,6 +177,7 @@ public class ReflectiveFeign extends Feign {
             throw new IllegalStateException(md.configKey() + " is not a method handled by feign");
           });
         } else {
+          // 基于被代理方法的元数据、入参、RequestTemplate的工厂等等创建代理方法的Http实现逻辑处理器SynchronousMethodHandler
           result.put(md.configKey(),
               factory.create(target, md, buildTemplate, options, decoder, errorDecoder));
         }

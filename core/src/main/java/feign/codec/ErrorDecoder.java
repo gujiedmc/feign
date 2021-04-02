@@ -29,6 +29,11 @@ import java.util.Date;
 import java.util.Map;
 
 /**
+ * 对响应体异常进行解析，当{@link Response#status()}不是2xx状态的时候会被标记为异常，
+ * 会被{@link ErrorDecoder}进行解析。
+ *
+ *
+ *
  * Allows you to massage an exception into a application-specific one. Converting out to a throttle
  * exception are examples of this in use.
  *

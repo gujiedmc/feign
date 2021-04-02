@@ -14,6 +14,10 @@
 package feign;
 
 /**
+ * http请求拦截器，对{@link RequestTemplate}中的数据进行修改，多个拦截器的顺序不做保证。
+ * 通常情况在{@link SynchronousMethodHandler#targetRequest(feign.RequestTemplate)}中
+ * 将RequestTemplate转为Request的时候执行。
+ *
  * Zero or more {@code RequestInterceptors} may be configured for purposes such as adding headers to
  * all requests. No guarantees are give with regards to the order that interceptors are applied.
  * Once interceptors are applied, {@link Target#apply(RequestTemplate)} is called to create the

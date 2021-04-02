@@ -42,6 +42,8 @@ import javax.net.ssl.SSLSocketFactory;
 import feign.Request.Options;
 
 /**
+ * Feign中Http请求客户端接口
+ *
  * Submits HTTP {@link Request requests}. Implementations are expected to be thread-safe.
  */
 public interface Client {
@@ -56,6 +58,9 @@ public interface Client {
    */
   Response execute(Request request, Options options) throws IOException;
 
+  /**
+   * 基于JDK自带http请求工具的默认实现。
+   */
   class Default implements Client {
 
     private final SSLSocketFactory sslContextFactory;

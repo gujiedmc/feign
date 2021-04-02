@@ -24,6 +24,8 @@ import java.util.regex.Pattern;
 import feign.Request.HttpMethod;
 
 /**
+ * 解析被代理接口中的注解参数为http配置。
+ *
  * Defines what annotations and values are valid on interfaces.
  */
 public interface Contract {
@@ -35,6 +37,11 @@ public interface Contract {
    */
   List<MethodMetadata> parseAndValidateMetadata(Class<?> targetType);
 
+  /**
+   * 基本的注解解析器流程。
+   * 遍历接口中的每个方法，通过{@link #parseAndValidateMetadata(java.lang.Class, java.lang.reflect.Method)}
+   * 解析类上面以及各个方法的注解，将元数据封装到MethodMetadata中
+   */
   abstract class BaseContract implements Contract {
 
     /**
@@ -76,6 +83,9 @@ public interface Contract {
     }
 
     /**
+     * 解析接口中指定方法的元数据到 MethodMetadata。
+     * 包括方法签名相关信息，以及类上和接口上的注解信息
+     *
      * Called indirectly by {@link #parseAndValidateMetadata(Class)}.
      */
     protected MethodMetadata parseAndValidateMetadata(Class<?> targetType, Method method) {

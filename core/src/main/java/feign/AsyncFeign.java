@@ -26,6 +26,8 @@ import feign.codec.Encoder;
 import feign.codec.ErrorDecoder;
 
 /**
+ * 创建异步代理的工厂。使用了装饰者模式，通过对内部{@link AsyncFeign#feign}的增强，拓展了异步
+ *
  * Enhances {@link Feign} to provide support for asynchronous clients. Context (for example for
  * session cookies or tokens) is explicit, as calls for the same session may be done across several
  * threads. <br>

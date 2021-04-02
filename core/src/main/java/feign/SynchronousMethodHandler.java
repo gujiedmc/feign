@@ -27,6 +27,10 @@ import static feign.ExceptionPropagationPolicy.UNWRAP;
 import static feign.FeignException.errorExecuting;
 import static feign.Util.checkNotNull;
 
+/**
+ * 同步的feign代理方法处理，每个MethodHandler都对应着被代理的接口中的一个方法。
+ * 执行被代理接口中的方法是，最终会由{@link MethodHandler#invoke}去执行，invoke方法会调用
+ */
 final class SynchronousMethodHandler implements MethodHandler {
 
   private static final long MAX_RESPONSE_BUFFER_SIZE = 8192L;
@@ -81,13 +85,18 @@ final class SynchronousMethodHandler implements MethodHandler {
 
   @Override
   public Object invoke(Object[] argv) throws Throwable {
+    // 基于接口入参创建http请求信息
     RequestTemplate template = buildTemplateFromArgs.create(argv);
+    // 加载http请求配置
     Options options = findOptions(argv);
+    // 为每次请求克隆一个重试策略
     Retryer retryer = this.retryer.clone();
     while (true) {
       try {
+        // 执行请求
         return executeAndDecode(template, options);
       } catch (RetryableException e) {
+        // 可以重试的异常，通过重试策略进行重试
         try {
           retryer.continueOrPropagate(e);
         } catch (RetryableException th) {
@@ -106,7 +115,12 @@ final class SynchronousMethodHandler implements MethodHandler {
     }
   }
 
+  /**
+   * feign中对每个被代理的类中每个方法的处理的地方，会调用{@link Client#execute}执行http请求
+   *
+   */
   Object executeAndDecode(RequestTemplate template, Options options) throws Throwable {
+    // 创建请求
     Request request = targetRequest(template);
 
     if (logLevel != Logger.Level.NONE) {
@@ -116,6 +130,7 @@ final class SynchronousMethodHandler implements MethodHandler {
     Response response;
     long start = System.nanoTime();
     try {
+      // 执行http请求
       response = client.execute(request, options);
       // ensure the request is set. TODO: remove in Feign 12
       response = response.toBuilder()
@@ -131,6 +146,7 @@ final class SynchronousMethodHandler implements MethodHandler {
     long elapsedTime = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - start);
 
 
+    // 解析响应体
     if (decoder != null)
       return decoder.decode(response, metadata.returnType());
 
@@ -156,6 +172,10 @@ final class SynchronousMethodHandler implements MethodHandler {
     return TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - start);
   }
 
+  /**
+   * 基于RequestTemplate中封装的全部数据创建 请求，
+   * 并应用所有的拦截器
+   */
   Request targetRequest(RequestTemplate template) {
     for (RequestInterceptor interceptor : requestInterceptors) {
       interceptor.apply(template);

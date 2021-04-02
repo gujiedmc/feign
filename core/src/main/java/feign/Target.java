@@ -17,6 +17,8 @@ import static feign.Util.checkNotNull;
 import static feign.Util.emptyToNull;
 
 /**
+ * 对被代理接口定义。
+ *
  * <br>
  * <br>
  * <b>relationship to JAXRS 2.0</b><br>
@@ -39,6 +41,8 @@ public interface Target<T> {
   String url();
 
   /**
+   * 在将RequestTemplate通过{@link RequestTemplate#request()}转为Request前进行处理。
+   *
    * Targets a template to this target, adding the {@link #url() base url} and any target-specific
    * headers or query parameters. <br>
    * <br>
@@ -94,6 +98,9 @@ public interface Target<T> {
       return url;
     }
 
+    /**
+     * 如果被代理中包含url信息，即url是http开头的，修改RequestTemplate中的host
+     */
     /* no authentication or other special activity. just insert the url. */
     @Override
     public Request apply(RequestTemplate input) {

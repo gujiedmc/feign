@@ -22,6 +22,7 @@ import java.util.stream.Collectors;
 import feign.Contract.BaseContract;
 
 /**
+ * 基于注解解析器解析被代理类的解析器。
  * {@link Contract} base implementation that works by declaring witch annotations should be
  * processed and how each annotation modifies {@link MethodMetadata}
  */
@@ -186,6 +187,8 @@ public abstract class DeclarativeContract extends BaseContract {
   }
 
   /**
+   * 解析方法注解
+   *
    * Called while method annotations are being processed
    *
    * @param predicate to check if the annotation should be processed or not
@@ -197,6 +200,8 @@ public abstract class DeclarativeContract extends BaseContract {
   }
 
   /**
+   * 解析参数注解
+   *
    * Called while method parameter annotations are being processed
    *
    * @param annotation to be processed

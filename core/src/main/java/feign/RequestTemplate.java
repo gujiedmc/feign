@@ -27,6 +27,8 @@ import java.util.stream.Collectors;
 import static feign.Util.*;
 
 /**
+ * Feign中定义的http请求全部信息的封装。
+ *
  * Request Builder for an HTTP Target.
  * <p>
  * This class is a variation on a UriTemplate, where, in addition to the uri, Headers and Query
@@ -477,6 +479,7 @@ public final class RequestTemplate implements Serializable {
   }
 
   /**
+   * 修改host
    * Set the target host for this request.
    *
    * @param target host for this request. Must be an absolute target.

@@ -31,6 +31,19 @@ import feign.querymap.FieldQueryMapEncoder;
 import static feign.ExceptionPropagationPolicy.NONE;
 
 /**
+ * 创建Feign代理的工厂，调用{@link #newInstance(Target)}创建代理。
+ *
+ * 通过{@link Feign.Builder}封装创建Feign代理需要的组件，重要的组件包括
+ * 1. {@link Logger.Level} 日志级别
+ * 2. {@link Client} http请求客户端
+ * 3. {@link Retryer} http请求重试策略
+ * 4. {@link Encoder} 内容编码器
+ * 5. {@link Decoder} 内容解析器
+ * 6. {@link RequestInterceptor} http请求拦截器
+ * 7. {@link InvocationHandlerFactory} 动态代理拦截方法工厂
+ * 8. {@link Request.Options} http请求的一些配置
+ *
+ *
  * Feign's purpose is to ease development against http apis that feign restfulness. <br>
  * In implementation, Feign is a {@link Feign#newInstance factory} for generating {@link Target
  * targeted} http apis.
@@ -96,25 +109,37 @@ public abstract class Feign {
   public abstract <T> T newInstance(Target<T> target);
 
   public static class Builder {
-
+    // 请求拦截器
     private final List<RequestInterceptor> requestInterceptors =
         new ArrayList<RequestInterceptor>();
+    // 日志级别
     private Logger.Level logLevel = Logger.Level.NONE;
+    // 注解解析器
     private Contract contract = new Contract.Default();
+    // http请求工具
     private Client client = new Client.Default(null, null);
+    // 重试策略
     private Retryer retryer = new Retryer.Default();
+    // 日志打印器
     private Logger logger = new NoOpLogger();
+    // http请求编码器
     private Encoder encoder = new Encoder.Default();
+    // http响应解码器
     private Decoder decoder = new Decoder.Default();
+    // 请求参数map编码器
     private QueryMapEncoder queryMapEncoder = new FieldQueryMapEncoder();
+    // 异常解析器
     private ErrorDecoder errorDecoder = new ErrorDecoder.Default();
+    // http请求配置
     private Options options = new Options();
+    // JDK代理创建代理方法的工厂
     private InvocationHandlerFactory invocationHandlerFactory =
         new InvocationHandlerFactory.Default();
     private boolean decode404;
     private boolean closeAfterDecode = true;
     private ExceptionPropagationPolicy propagationPolicy = NONE;
     private boolean forceDecoding = false;
+    // 基于反射的插件式动态拓展能力增强
     private List<Capability> capabilities = new ArrayList<>();
 
     public Builder logLevel(Logger.Level logLevel) {

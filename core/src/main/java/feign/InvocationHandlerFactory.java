@@ -18,6 +18,8 @@ import java.lang.reflect.Method;
 import java.util.Map;
 
 /**
+ * 通过Feign创建动态代理的InvocationHandler的工厂。
+ *
  * Controls reflective method dispatch.
  */
 public interface InvocationHandlerFactory {

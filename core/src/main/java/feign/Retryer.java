@@ -16,6 +16,13 @@ package feign;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 /**
+ * http请求重试策略。
+ *
+ * 在执行请求过程中如果碰到{@link RetryableException}时会触发该策略，调用{@link Retryer#continueOrPropagate}方法。
+ * 如果可以重试，直接return（可以在休眠一段时间后），如果不可以重试，则将异常再次抛出。
+ *
+ * 该策略需要支持clone，每次执行HTTP请求的时候都会clone一个进行修改。
+ *
  * Cloned for each invocation to {@link Client#execute(Request, feign.Request.Options)}.
  * Implementations may keep state to determine if retry operations should continue or not.
  */

@@ -20,6 +20,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 /**
+ *
  * An immutable response to an http invocation which only returns string content.
  */
 public final class Response implements Closeable {

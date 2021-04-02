@@ -22,6 +22,8 @@ import feign.codec.Decoder;
 import feign.codec.Encoder;
 
 /**
+ * 基于反射的插件式动态拓展能力增强
+ *
  * Capabilities expose core feign artifacts to implementations so parts of core can be customized
  * around the time the client being built.
  *
