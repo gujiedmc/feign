@@ -19,6 +19,8 @@ import java.util.logging.Logger;
 import static feign.Util.checkNotNull;
 
 /**
+ * 创建降级接口实现的工厂，可以在创建的时候为实现注入错误信息。
+ *
  * Used to control the fallback given its cause.
  *
  * Ex.

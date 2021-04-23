@@ -32,6 +32,10 @@ import feign.codec.Encoder;
 import feign.codec.ErrorDecoder;
 
 /**
+ * 构建支持Hystrix的feign动态代理。
+ * 可以支持feign代理接口返回 HystrixCommand 或者 rx.Observable 或者 rx.Single 对象。
+ * 可以使feign的普通方法不通过调用{@link HystrixCommand#execute()}就可以支持断路器
+ *
  * Allows Feign interfaces to return HystrixCommand or rx.Observable or rx.Single objects. Also
  * decorates normal Feign methods with circuit breakers, but calls {@link HystrixCommand#execute()}
  * directly.

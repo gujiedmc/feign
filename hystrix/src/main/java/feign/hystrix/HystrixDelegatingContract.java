@@ -14,6 +14,8 @@
 package feign.hystrix;
 
 import static feign.Util.resolveLastTypeParameter;
+
+import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.List;
@@ -26,6 +28,11 @@ import rx.Observable;
 import rx.Single;
 
 /**
+ * 基于装饰者模式，对原有的元数据解析器拓展 ,对返回结果的类型进行解析。
+ * 因为feign.hystrix对feign原有的返回数据拓展了 HystrixCommand Observable Single Completable CompletableFuture等类型。
+ * 这里会将真实返回数据的返回类型设置到元数据中，进行拆箱，
+ * 然后在{@link HystrixInvocationHandler#invoke}中创建的HystrixCommand中对响应的数据进行装箱。
+ *
  * This special cases methods that return {@link HystrixCommand}, {@link Observable}, or
  * {@link Single} so that they are decoded properly.
  * 

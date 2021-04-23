@@ -21,6 +21,9 @@ import feign.Feign;
 import feign.Target;
 
 /**
+ * 通过feign的代理对象和方法创建配置HystrixCommand的Setter。
+ * 主要是通过代理类的name创建 CommandGroup，通过方法名创建CommandKey
+ *
  * Used to control properties of a hystrix command. Use cases include reading from static
  * configuration or custom annotations.
  *

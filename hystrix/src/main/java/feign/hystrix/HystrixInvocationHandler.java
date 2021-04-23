@@ -33,12 +33,21 @@ import rx.Observable;
 import rx.Single;
 import static feign.Util.checkNotNull;
 
+/**
+ * 支持Hystrix的feign动态代理生成的invocationHandler。
+ * feign默认的动态代理invocationHandler {@link feign.ReflectiveFeign.FeignInvocationHandler}。
+ *
+ */
 final class HystrixInvocationHandler implements InvocationHandler {
-
+  // 被代理对象详情
   private final Target<?> target;
+  // 被代理对象每个方法的具体处理，会在MethodHandler里面执行真正的请求。
   private final Map<Method, MethodHandler> dispatch;
+  // Hystrix降级策略工厂
   private final FallbackFactory<?> fallbackFactory; // Nullable
+  // 缓存
   private final Map<Method, Method> fallbackMethodMap;
+  // HystrixCommand配置 origin方法 -> HystrixCommand.Setter
   private final Map<Method, Setter> setterMethodMap;
 
   HystrixInvocationHandler(Target<?> target, Map<Method, MethodHandler> dispatch,
@@ -101,11 +110,13 @@ final class HystrixInvocationHandler implements InvocationHandler {
       return toString();
     }
 
+    // 创建Command
     HystrixCommand<Object> hystrixCommand =
         new HystrixCommand<Object>(setterMethodMap.get(method)) {
           @Override
           protected Object run() throws Exception {
             try {
+              // 业务逻辑直接交给 MethodHandler处理。
               return HystrixInvocationHandler.this.dispatch.get(method).invoke(args);
             } catch (Exception e) {
               throw e;
@@ -114,6 +125,9 @@ final class HystrixInvocationHandler implements InvocationHandler {
             }
           }
 
+          /**
+           * 降级策略。通过{@link HystrixInvocationHandler#fallbackFactory}获取降级方法，反射执行。
+           */
           @Override
           protected Object getFallback() {
             if (fallbackFactory == null) {
@@ -152,6 +166,7 @@ final class HystrixInvocationHandler implements InvocationHandler {
           }
         };
 
+    // 根据不同的响应结果，选择不同的执行方式。
     if (Util.isDefault(method)) {
       return hystrixCommand.execute();
     } else if (isReturnsHystrixCommand(method)) {
